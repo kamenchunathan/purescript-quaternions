@@ -1,0 +1,19 @@
+package:
+  name: quaternions
+  dependencies:
+    - arrays
+    - foldable-traversable
+    - maybe
+    - newtype
+    - numbers
+    - orders
+    - partial
+    - prelude
+  test:
+    main: Text.Main
+    dependencies:
+      - quickcheck
+workspace:
+  packageSet:
+    registry: 50.1.2
+  extraPackages: {}

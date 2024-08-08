@@ -3,5 +3,8 @@
 /.pulp-cache/
 /output/
 /.psci*
+.spago/
+.purs-repl
+.psc-ide-port
 /src/.webpack.js
 generated-docs/

@@ -111,7 +111,8 @@ import Data.Ord.Max (Max(..))
 import Data.Quaternion.Vec3 (Vec3, vec3)
 import Data.Quaternion.Vec3 as Vec3
 import Data.Semigroup.Foldable (class Foldable1, foldMap1)
-import Math as Math
+
+import Data.Number as Number
 import Partial.Unsafe (unsafePartial)
 
 -- | A quaternion. The type parameter denotes the underlying type. Note that
@@ -170,7 +171,10 @@ instance foldableQuaternion :: Foldable Quaternion where
 -- |     foldMap1 Additive (Quaternion 1.0 1.0 1.0 1.0) = Additive 4.0
 -- |
 instance foldable1Quaternion :: Foldable1 Quaternion where
-  fold1 (Quaternion w x y z) = w <> x <> y <> z
+  foldr1 f (Quaternion w x y z) =
+    (f w (f x (f y z)))
+  foldl1 f (Quaternion w x y z) = 
+    (f (f (f x y) x ) z)
   foldMap1 f (Quaternion w x y z) = f w <> f x <> f y <> f z
 
 instance semiringQuaternion :: Ring a => Semiring (Quaternion a) where
@@ -278,14 +282,14 @@ dot (Quaternion w1 x1 y1 z1) (Quaternion w2 x2 y2 z2) =
 -- | expected identity `exp (p + q) = exp p * exp q` will not necessarily hold
 -- | unless `p` and `q` commute.
 exp :: Quaternion Number -> Quaternion Number
-exp q@(Quaternion w x y z) =
+exp (Quaternion w x y z) =
   let
     v = Quaternion 0.0 x y z
     normV = norm v
-    k' = if normV == 0.0 then 0.0 else Math.sin normV / normV
+    k' = if normV == 0.0 then 0.0 else Number.sin normV / normV
   in
-    scalarMul (Math.exp w)
-      (Quaternion (Math.cos normV) (k'*x) (k'*y) (k'*z))
+    scalarMul (Number.exp w)
+      (Quaternion (Number.cos normV) (k'*x) (k'*y) (k'*z))
 
 -- | The quaternion logarithm function. This function is the right inverse of
 -- | the quaternion exponential function, that is, `exp <<< log` is
@@ -308,9 +312,9 @@ log q =
     v = vectorPart q
     normQ = norm q
     normV = Vec3.norm v
-    k' = Math.acos (a / normQ)
+    k' = Number.acos (a / normQ)
   in
-    fromReal (Math.log normQ) + fromVector (Vec3.scalarMul (k' / normV) v)
+    fromReal (Number.log normQ) + fromVector (Vec3.scalarMul (k' / normV) v)
 
 
 -- | Raise a quaternion to the power of a real number. Defined as
@@ -332,14 +336,14 @@ pow q t = exp (scalarMul t (log q))
 -- | into a normed space; it is equivalent to the standard Euclidean norm on
 -- | R^4. Defined as
 -- |
--- |     norm (Quaternion w x y z) = Math.sqrt (w*w + x*x + y*y + z*z)
+-- |     norm (Quaternion w x y z) = Number.sqrt (w*w + x*x + y*y + z*z)
 -- |
 -- | For example:
 -- |
 -- |     norm (Quaternion 1.0 (-2.0) 3.0 (-4.0)) = 5.477225575051661
 -- |
 norm :: Quaternion Number -> Number
-norm q = Math.sqrt (normSquare q)
+norm q = Number.sqrt (normSquare q)
 
 -- | The square of the norm of a quaternion. This is slightly easier to compute
 -- | than the actual norm, so may be useful in cases where you are worried

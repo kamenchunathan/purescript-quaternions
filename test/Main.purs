@@ -16,7 +16,7 @@ import Data.Quaternion.Vec3 (Vec3)
 import Data.Quaternion.Vec3 as Vec3
 import Effect (Effect)
 import Effect.Console (log)
-import Math as Math
+import Data.Number as Number
 import Partial.Unsafe (unsafePartial)
 import Test.QuickCheck (quickCheck, (<?>))
 import Test.QuickCheck as QC
@@ -98,7 +98,7 @@ epsilon :: Number
 epsilon = 1e-8
 
 approxEq :: Number -> Number -> Boolean
-approxEq x y = Math.abs (x - y) < epsilon
+approxEq x y = Number.abs (x - y) < epsilon
 
 vApproxEq :: Vec3 Number -> Vec3 Number -> Boolean
 vApproxEq x y =
@@ -108,7 +108,7 @@ qApproxEq :: Quaternion Number -> Quaternion Number -> Boolean
 qApproxEq p q =
   let
     -- Scale the tolerance based on the norms of the arguments
-    tolerance = Math.max (Quaternion.norm p) (Quaternion.norm q) / 1e12
+    tolerance = Number.max (Quaternion.norm p) (Quaternion.norm q) / 1e12
   in
     Quaternion.approxEq tolerance p q
 
@@ -166,7 +166,7 @@ main = do
 
   log "Quaternion exponential agrees with real exponential"
   quickCheck \x ->
-    Quaternion.exp (Quaternion.fromReal x) == Quaternion (Math.exp x) 0.0 0.0 0.0
+    Quaternion.exp (Quaternion.fromReal x) == Quaternion (Number.exp x) 0.0 0.0 0.0
     <?> show { x }
 
   log "exp(p+q) = exp(p)*exp(q) when p, q commute"
@@ -192,9 +192,9 @@ main = do
       x = x' / 5.0 -- this gives us an x in [-20, 20]
       w = Quaternion x y 0.0 0.0
       z@(Quaternion _ _ e1 e2) = Quaternion.exp w
-      z' = Quaternion.scalarMul (Math.exp x)
-            (Quaternion.fromReal (Math.cos y) +
-              Quaternion.i * Quaternion.fromReal (Math.sin y))
+      z' = Quaternion.scalarMul (Number.exp x)
+            (Quaternion.fromReal (Number.cos y) +
+              Quaternion.i * Quaternion.fromReal (Number.sin y))
     in
       foldResults
         [ e1 == 0.0 && e2 == 0.0 <?> show { w, z, msg: "expected z to be complex" }
@@ -209,7 +209,7 @@ main = do
     in
       foldResults
         [ y' == 0.0 && z' == 0.0 <?> show { w, z, msg: "expected z to be complex" }
-        , -Math.pi <= x' && x' <= Math.pi <?> show { w, z, msg: "expected x' to be in [-pi, pi]" }
+        , -Number.pi <= x' && x' <= Number.pi <?> show { w, z, msg: "expected x' to be in [-pi, pi]" }
         ]
 
   log "Quaternion pow works as expected for integers"

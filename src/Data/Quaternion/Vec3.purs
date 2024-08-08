@@ -17,7 +17,7 @@ module Data.Quaternion.Vec3
 
 import Prelude
 
-import Math as Math
+import Data.Number as Number
 import Partial.Unsafe (unsafeCrashWith)
 
 newtype Vec3 a = Vec3 (Array a)
@@ -83,5 +83,5 @@ normalize v =
 
 -- | The Euclidean norm of a vector.
 norm :: Vec3 Number -> Number
-norm (Vec3 [x,y,z]) = Math.sqrt (x*x + y*y + z*z)
+norm (Vec3 [x,y,z]) = Number.sqrt (x*x + y*y + z*z)
 norm _ = unsafeCrashWith "Vec3 invariant violated"

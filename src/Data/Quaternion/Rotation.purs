@@ -29,7 +29,7 @@ import Data.Quaternion (Quaternion(..))
 import Data.Quaternion as Q
 import Data.Quaternion.Vec3 (Vec3)
 import Data.Quaternion.Vec3 as Vec3
-import Math as Math
+import Data.Number as Number
 import Partial (crashWith)
 
 -- | A rotation in three-dimensional space, represented by a unit quaternion
@@ -108,7 +108,7 @@ slerp (Rotation p') (Rotation q) t =
     -- switch to linear interpolation.
     threshold = 0.9995
   in
-    if Math.abs dot > threshold
+    if Number.abs dot > threshold
       then lerp (Rotation p) (Rotation q) t
       else fromQuaternion (p * (Q.pow (recip p * q) t))
 
@@ -119,10 +119,10 @@ fromAxisAngle :: { angle :: Number, axis :: Vec3 Number } -> Rotation
 fromAxisAngle { angle, axis } =
   let
     halfAngle = 0.5 * angle
-    a = Math.sin halfAngle
+    a = Number.sin halfAngle
   in
     Rotation
-      (Q.fromReal (Math.cos halfAngle) +
+      (Q.fromReal (Number.cos halfAngle) +
         Q.fromVector (Vec3.scalarMul a (Vec3.normalize axis)))
 
 -- | Gives the angle and axis that a rotation represents. The axis returned is
@@ -133,9 +133,9 @@ fromAxisAngle { angle, axis } =
 toAxisAngle :: Rotation -> { angle :: Number, axis :: Vec3 Number }
 toAxisAngle (Rotation (Quaternion a b c d)) =
   let
-    halfAngle = Math.acos a
+    halfAngle = Number.acos a
     angle = halfAngle * 2.0
-    k = 1.0 / Math.sin halfAngle
+    k = 1.0 / Number.sin halfAngle
     axis = Vec3.vec3 (k * b) (k * c) (k * d)
   in
     { angle, axis }
@@ -211,7 +211,7 @@ fromRotationMatrix [a11, a21, a31, a12, a22, a32, a13, a23, a33] =
   -- close to zero, we first determine which component of the quaternion we are
   -- going to return will have the largest absolute value, and then compute the
   -- other three using that component. See Section 10.6.4 of F. Dunn, I.
-  -- Parberry, 3D Math Primer for Graphics and Game Development.
+  -- Parberry, 3D Number Primer for Graphics and Game Development.
   let
     ww = a11    + a22 + a33
     xx = a11    - a22 - a33
@@ -225,7 +225,7 @@ fromRotationMatrix [a11, a21, a31, a12, a22, a32, a13, a23, a33] =
       Just 0 ->
         -- w is the largest
         let
-          w = 0.5 * Math.sqrt (1.0 + ww)
+          w = 0.5 * Number.sqrt (1.0 + ww)
           k = 0.25 / w
           x = k * (a32 - a23)
           y = k * (a13 - a31)
@@ -235,7 +235,7 @@ fromRotationMatrix [a11, a21, a31, a12, a22, a32, a13, a23, a33] =
       Just 1 ->
         -- x is the largest
         let
-          x = 0.5 * Math.sqrt (1.0 + xx)
+          x = 0.5 * Number.sqrt (1.0 + xx)
           k = 0.25 / x
           w = k * (a32 - a23)
           y = k * (a12 + a21)
@@ -245,7 +245,7 @@ fromRotationMatrix [a11, a21, a31, a12, a22, a32, a13, a23, a33] =
       Just 2 ->
         -- y is the largest
         let
-          y = 0.5 * Math.sqrt (1.0 + yy)
+          y = 0.5 * Number.sqrt (1.0 + yy)
           k = 0.25 / y
           w = k * (a13 - a31)
           x = k * (a12 + a21)
@@ -255,7 +255,7 @@ fromRotationMatrix [a11, a21, a31, a12, a22, a32, a13, a23, a33] =
       Just 3 ->
         -- z is the largest
         let
-          z = 0.5 * Math.sqrt (1.0 + zz)
+          z = 0.5 * Number.sqrt (1.0 + zz)
           k = 0.25 / z
           w = k * (a21 - a12)
           x = k * (a31 + a13)
